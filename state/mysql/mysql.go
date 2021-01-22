@@ -123,6 +123,10 @@ func (m *MySQL) Get(req *state.GetRequest) (*state.GetResponse, error) {
 }
 
 func (m *MySQL) Set(req *state.SetRequest) error {
+	return state.SetWithOptions(m.setValue, req)
+}
+
+func (m *MySQL) setValue(req *state.SetRequest) error {
 	if req.Key == "" {
 		return fmt.Errorf("missing key in set operation")
 	}
@@ -161,6 +165,10 @@ func (m *MySQL) Set(req *state.SetRequest) error {
 }
 
 func (m *MySQL) Delete(req *state.DeleteRequest) error {
+	return state.DeleteWithOptions(m.deleteValue, req)
+}
+
+func (m *MySQL) deleteValue(req *state.DeleteRequest) error {
 	if req.Key == "" {
 		return fmt.Errorf("missing key in delete operation")
 	}
