@@ -103,7 +103,7 @@ func (p *Pulsar) Init(metadata pubsub.Metadata) error {
 	return nil
 }
 
-func (p *Pulsar) Publish(req *pubsub.PublishRequest) error {
+func (p *Pulsar) Publish(req *pubsub.PublishRequest) (*pubsub.PublishResponse, error) {
 	var (
 		producer pulsar.Producer
 		err      error
@@ -115,7 +115,7 @@ func (p *Pulsar) Publish(req *pubsub.PublishRequest) error {
 			Topic: req.Topic,
 		})
 		if err != nil {
-			return err
+			return nil, err
 		}
 
 		p.cache.Add(req.Topic, producer)
@@ -127,10 +127,10 @@ func (p *Pulsar) Publish(req *pubsub.PublishRequest) error {
 		Payload: req.Data,
 	})
 	if err != nil {
-		return err
+		return nil, err
 	}
 
-	return nil
+	return nil, nil
 }
 
 func (p *Pulsar) Subscribe(req pubsub.SubscribeRequest, handler pubsub.Handler) error {

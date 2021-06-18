@@ -177,15 +177,15 @@ func (r *rabbitMQ) getChannelOrReconnect() (rabbitMQChannelBroker, int, error) {
 	return channel, connectionCount, nil
 }
 
-func (r *rabbitMQ) Publish(req *pubsub.PublishRequest) error {
+func (r *rabbitMQ) Publish(req *pubsub.PublishRequest) (*pubsub.PublishResponse, error) {
 	channel, connectionCount, err := r.getChannelOrReconnect()
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	err = r.ensureExchangeDeclared(channel, req.Topic)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	r.logger.Debugf("%s publishing message to topic '%s'", logMessagePrefix, req.Topic)
@@ -202,10 +202,10 @@ func (r *rabbitMQ) Publish(req *pubsub.PublishRequest) error {
 			r.reconnect(connectionCount)
 		}
 
-		return err
+		return nil, err
 	}
 
-	return nil
+	return nil, nil
 }
 
 func (r *rabbitMQ) Subscribe(req pubsub.SubscribeRequest, handler pubsub.Handler) error {

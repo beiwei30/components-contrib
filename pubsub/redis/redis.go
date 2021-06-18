@@ -147,17 +147,17 @@ func (r *redisStreams) Init(metadata pubsub.Metadata) error {
 	return nil
 }
 
-func (r *redisStreams) Publish(req *pubsub.PublishRequest) error {
+func (r *redisStreams) Publish(req *pubsub.PublishRequest) (*pubsub.PublishResponse, error) {
 	_, err := r.client.XAdd(r.ctx, &redis.XAddArgs{
 		Stream:       req.Topic,
 		MaxLenApprox: r.metadata.maxLenApprox,
 		Values:       map[string]interface{}{"data": req.Data},
 	}).Result()
 	if err != nil {
-		return fmt.Errorf("redis streams: error from publish: %s", err)
+		return nil, fmt.Errorf("redis streams: error from publish: %s", err)
 	}
 
-	return nil
+	return nil, nil
 }
 
 func (r *redisStreams) Subscribe(req pubsub.SubscribeRequest, handler pubsub.Handler) error {

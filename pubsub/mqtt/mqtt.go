@@ -174,15 +174,15 @@ func (m *mqttPubSub) Init(metadata pubsub.Metadata) error {
 }
 
 // Publish the topic to mqtt pub sub.
-func (m *mqttPubSub) Publish(req *pubsub.PublishRequest) error {
+func (m *mqttPubSub) Publish(req *pubsub.PublishRequest) (*pubsub.PublishResponse, error) {
 	m.logger.Debugf("mqtt publishing topic %s with data: %v", req.Topic, req.Data)
 
 	token := m.producer.Publish(req.Topic, m.metadata.qos, m.metadata.retain, req.Data)
 	if !token.WaitTimeout(defaultWait) || token.Error() != nil {
-		return fmt.Errorf("mqtt error from publish: %v", token.Error())
+		return nil, fmt.Errorf("mqtt error from publish: %v", token.Error())
 	}
 
-	return nil
+	return nil, nil
 }
 
 // Subscribe to the mqtt pub sub topic.

@@ -113,13 +113,13 @@ func (aeh *AzureEventHubs) Init(metadata pubsub.Metadata) error {
 }
 
 // Publish sends data to Azure Event Hubs
-func (aeh *AzureEventHubs) Publish(req *pubsub.PublishRequest) error {
+func (aeh *AzureEventHubs) Publish(req *pubsub.PublishRequest) (*pubsub.PublishResponse, error) {
 	err := aeh.hub.Send(context.Background(), &eventhub.Event{Data: req.Data})
 	if err != nil {
-		return fmt.Errorf("error from publish: %s", err)
+		return nil, fmt.Errorf("error from publish: %s", err)
 	}
 
-	return nil
+	return nil, nil
 }
 
 // Subscribe receives data from Azure Event Hubs

@@ -209,13 +209,13 @@ func (n *natsStreamingPubSub) Init(metadata pubsub.Metadata) error {
 	return nil
 }
 
-func (n *natsStreamingPubSub) Publish(req *pubsub.PublishRequest) error {
+func (n *natsStreamingPubSub) Publish(req *pubsub.PublishRequest) (*pubsub.PublishResponse, error) {
 	err := n.natStreamingConn.Publish(req.Topic, req.Data)
 	if err != nil {
-		return fmt.Errorf("nats-streaming: error from publish: %s", err)
+		return nil, fmt.Errorf("nats-streaming: error from publish: %s", err)
 	}
 
-	return nil
+	return nil, nil
 }
 
 func (n *natsStreamingPubSub) Subscribe(req pubsub.SubscribeRequest, handler pubsub.Handler) error {

@@ -21,3 +21,7 @@ const (
 type AppResponse struct {
 	Status AppResponseStatus `json:"status"`
 }
+
+type PublishResponse struct {
+	Metadata map[string]string `json:"metadata"`
+}

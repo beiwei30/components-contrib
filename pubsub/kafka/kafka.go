@@ -156,7 +156,7 @@ func (k *Kafka) Init(metadata pubsub.Metadata) error {
 }
 
 // Publish message to Kafka cluster
-func (k *Kafka) Publish(req *pubsub.PublishRequest) error {
+func (k *Kafka) Publish(req *pubsub.PublishRequest) (*pubsub.PublishResponse, error) {
 	k.logger.Debugf("Publishing topic %v with data: %v", req.Topic, req.Data)
 
 	msg := &sarama.ProducerMessage{
@@ -173,10 +173,15 @@ func (k *Kafka) Publish(req *pubsub.PublishRequest) error {
 	k.logger.Debugf("Partition: %v, offset: %v", partition, offset)
 
 	if err != nil {
-		return err
+		return nil, err
 	}
 
-	return nil
+	metadata := map[string]string {
+		"partition": strconv.Itoa(int(partition)),
+		"offset": strconv.Itoa(int(offset)),
+	}
+
+	return &pubsub.PublishResponse{Metadata: metadata}, nil
 }
 
 func (k *Kafka) addTopic(newTopic string) []string {

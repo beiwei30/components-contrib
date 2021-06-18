@@ -324,14 +324,14 @@ func (s *snsSqs) getOrCreateQueue(queueName string) (*sqsQueueInfo, error) {
 	return queueInfo, nil
 }
 
-func (s *snsSqs) Publish(req *pubsub.PublishRequest) error {
+func (s *snsSqs) Publish(req *pubsub.PublishRequest) (*pubsub.PublishResponse, error) {
 	topicArn, err := s.getOrCreateTopic(req.Topic)
 	if err != nil {
 		s.logger.Errorf("error getting topic ARN for %s: %v", req.Topic, err)
 	}
 
 	message := string(req.Data)
-	_, err = s.snsClient.Publish(&sns.PublishInput{
+	output, err := s.snsClient.Publish(&sns.PublishInput{
 		Message:  &message,
 		TopicArn: &topicArn,
 	})
@@ -339,10 +339,14 @@ func (s *snsSqs) Publish(req *pubsub.PublishRequest) error {
 	if err != nil {
 		s.logger.Errorf("error publishing topic %s with topic ARN %s: %v", req.Topic, topicArn, err)
 
-		return err
+		return nil, err
 	}
 
-	return nil
+	metadata := map[string]string{
+		"message-id": *output.MessageId,
+	}
+
+	return &pubsub.PublishResponse{Metadata: metadata}, nil
 }
 
 type snsMessage struct {

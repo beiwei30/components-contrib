@@ -9,6 +9,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"strconv"
 	"time"
 
 	mqc "github.com/apache/rocketmq-client-go/v2/consumer"
@@ -117,7 +118,7 @@ func (r *rocketMQ) setupConsumer() (mqw.PushConsumer, error) {
 	return nil, errors.New("rocketmq error: cannot found consumer")
 }
 
-func (r *rocketMQ) Publish(req *pubsub.PublishRequest) error {
+func (r *rocketMQ) Publish(req *pubsub.PublishRequest) (*pubsub.PublishResponse, error) {
 	msg := primitive.NewMessage(req.Topic, req.Data).WithTag(req.Metadata[metadataRocketmqTag]).
 		WithKeys([]string{req.Metadata[metadataRocketmqKey]})
 
@@ -132,10 +133,17 @@ func (r *rocketMQ) Publish(req *pubsub.PublishRequest) error {
 	if err != nil {
 		r.logger.Errorf("error send message topic:%s : %v", req.Topic, err)
 
-		return fmt.Errorf("publish message failed. %w", err)
+		return nil, fmt.Errorf("publish message failed. %w", err)
 	}
 
-	return nil
+	metadata := map[string]string{
+		"status":        strconv.Itoa(int(result.Status)),
+		"id":            result.MsgID,
+		"queue-offset":  strconv.FormatInt(result.QueueOffset, 10),
+		"offset-msg-id": result.OffsetMsgID,
+	}
+
+	return &pubsub.PublishResponse{Metadata: metadata}, nil
 }
 
 func (r *rocketMQ) addTopic(newTopic string, selector mqc.MessageSelector) []string {

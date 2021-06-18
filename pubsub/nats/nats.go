@@ -67,13 +67,13 @@ func (n *natsPubSub) Init(metadata pubsub.Metadata) error {
 	return nil
 }
 
-func (n *natsPubSub) Publish(req *pubsub.PublishRequest) error {
+func (n *natsPubSub) Publish(req *pubsub.PublishRequest) (*pubsub.PublishResponse, error) {
 	err := n.natsConn.Publish(req.Topic, req.Data)
 	if err != nil {
-		return fmt.Errorf("nats: error from publish: %s", err)
+		return nil, fmt.Errorf("nats: error from publish: %s", err)
 	}
 
-	return nil
+	return nil, nil
 }
 
 func (n *natsPubSub) Subscribe(req pubsub.SubscribeRequest, handler pubsub.Handler) error {

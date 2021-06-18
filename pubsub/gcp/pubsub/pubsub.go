@@ -186,11 +186,11 @@ func (g *GCPPubSub) getPubSubClient(ctx context.Context, metadata *metadata) (*g
 }
 
 // Publish the topic to GCP Pubsub
-func (g *GCPPubSub) Publish(req *pubsub.PublishRequest) error {
+func (g *GCPPubSub) Publish(req *pubsub.PublishRequest) (*pubsub.PublishResponse, error) {
 	if !g.metadata.DisableEntityManagement {
 		err := g.ensureTopic(req.Topic)
 		if err != nil {
-			return fmt.Errorf("%s could not get valid topic %s, %s", errorMessagePrefix, req.Topic, err)
+			return nil, fmt.Errorf("%s could not get valid topic %s, %s", errorMessagePrefix, req.Topic, err)
 		}
 	}
 
@@ -201,7 +201,7 @@ func (g *GCPPubSub) Publish(req *pubsub.PublishRequest) error {
 		Data: req.Data,
 	}).Get((ctx))
 
-	return err
+	return nil, err
 }
 
 // Subscribe to the GCP Pubsub topic

@@ -269,7 +269,7 @@ func (a *azureServiceBus) Init(metadata pubsub.Metadata) error {
 	return nil
 }
 
-func (a *azureServiceBus) Publish(req *pubsub.PublishRequest) error {
+func (a *azureServiceBus) Publish(req *pubsub.PublishRequest) (*pubsub.PublishResponse, error) {
 	var sender *azservicebus.Topic
 	var err error
 
@@ -283,7 +283,7 @@ func (a *azureServiceBus) Publish(req *pubsub.PublishRequest) error {
 		// Ensure the topic exists the first time it is referenced.
 		if !a.metadata.DisableEntityManagement {
 			if err = a.ensureTopic(req.Topic); err != nil {
-				return err
+				return nil, err
 			}
 		}
 		a.topicsLock.Lock()
@@ -292,7 +292,7 @@ func (a *azureServiceBus) Publish(req *pubsub.PublishRequest) error {
 		a.topicsLock.Unlock()
 
 		if err != nil {
-			return err
+			return nil, err
 		}
 	}
 
@@ -302,7 +302,7 @@ func (a *azureServiceBus) Publish(req *pubsub.PublishRequest) error {
 		msg.TTL = &ttl
 	}
 
-	return a.doPublish(sender, msg)
+	return nil, a.doPublish(sender, msg)
 }
 
 func (a *azureServiceBus) doPublish(sender *azservicebus.Topic, msg *azservicebus.Message) error {

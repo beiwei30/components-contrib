@@ -82,17 +82,17 @@ func (p *Hazelcast) Init(metadata pubsub.Metadata) error {
 	return nil
 }
 
-func (p *Hazelcast) Publish(req *pubsub.PublishRequest) error {
+func (p *Hazelcast) Publish(req *pubsub.PublishRequest) (*pubsub.PublishResponse, error) {
 	topic, err := p.client.GetTopic(req.Topic)
 	if err != nil {
-		return fmt.Errorf("hazelcast error: failed to get topic for %s", req.Topic)
+		return nil, fmt.Errorf("hazelcast error: failed to get topic for %s", req.Topic)
 	}
 
 	if err = topic.Publish(req.Data); err != nil {
-		return fmt.Errorf("hazelcast error: failed to publish data, %v", err)
+		return nil, fmt.Errorf("hazelcast error: failed to publish data, %v", err)
 	}
 
-	return nil
+	return nil, nil
 }
 
 func (p *Hazelcast) Subscribe(req pubsub.SubscribeRequest, handler pubsub.Handler) error {
